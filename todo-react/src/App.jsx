@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { NewTodoForm } from "./NewTodoForm";
 import { TodoList } from "./TodoList";
+import "./styles/App.css";
 
 export default function App() {
   const [todos, setTodos] = useState(() => {
@@ -10,6 +11,23 @@ export default function App() {
 
     return JSON.parse(localValue);
   });
+
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("DARK_MODE");
+    return savedTheme === "true";
+  });
+
+  // Save dark mode preference
+  useEffect(() => {
+    localStorage.setItem("DARK_MODE", isDarkMode);
+    // Add/remove dark class to body
+    if (isDarkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [isDarkMode]);
 
   useEffect(() => {
     localStorage.setItem("ITEMS", JSON.stringify(todos));
@@ -41,8 +59,17 @@ export default function App() {
     });
   }
 
+  function toggleDarkMode() {
+    setIsDarkMode(!isDarkMode);
+  }
+
   return (
     <>
+      <div className="theme-toggle">
+        <button onClick={toggleDarkMode} className="btn btn-theme">
+          {isDarkMode ? "☀️" : "🌙"} {isDarkMode ? "Light" : "Dark"} Mode
+        </button>
+      </div>
       <NewTodoForm onSubmit={addTodo} />
       <h1 className="header">Todo List</h1>
       <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
